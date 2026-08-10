@@ -31,7 +31,7 @@ export const siteConfig = {
   phoneHref: "tel:+19297064042",
   phoneDisplay: "(929) 706-4042",
   /** PLACEHOLDER — not provided. */
-  email: "[topmileslogistics@gmail.com]",
+  email: "topmileslogistics@gmail.com",
   /** PLACEHOLDER — not provided. */
   officeAddress: "[OFFICE ADDRESS]",
   /** PLACEHOLDER — not provided. */
