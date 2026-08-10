@@ -31,7 +31,7 @@ export const siteConfig = {
   phoneHref: "tel:+19297064042",
   phoneDisplay: "(929) 706-4042",
   /** PLACEHOLDER — not provided. */
-  email: "[COMPANY EMAIL]",
+  email: "[topmileslogistics@gmail.com]",
   /** PLACEHOLDER — not provided. */
   officeAddress: "[OFFICE ADDRESS]",
   /** PLACEHOLDER — not provided. */
@@ -39,7 +39,6 @@ export const siteConfig = {
   /** PLACEHOLDER — not provided. */
   dotNumber: "[DOT NUMBER]",
   /** PLACEHOLDER — not provided. */
-  recruitingHours: "[RECRUITING HOURS]",
 
   // ---- The role (all confirmed) ------------------------------------------
   position: "OTR CDL-A Truck Driver",
