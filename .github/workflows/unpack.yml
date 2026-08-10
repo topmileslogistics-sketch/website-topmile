@@ -1,4 +1,3 @@
-.github/workflows/unpack.yml
 name: Unpack project zip
 
 on:
