@@ -1,0 +1,36 @@
+.github/workflows/unpack.yml
+name: Unpack project zip
+
+on:
+  push:
+    paths:
+      - "*.zip"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unzip into the repository root
+        run: |
+          shopt -s nullglob
+          zips=(*.zip)
+          if [ ${#zips[@]} -eq 0 ]; then
+            echo "No .zip found at the repository root."
+            exit 1
+          fi
+          unzip -o "${zips[0]}"
+          rm -f "${zips[0]}"
+
+      - name: Commit the unpacked files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Unpack project files" || echo "Nothing to commit"
+          git push
