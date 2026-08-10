@@ -1,0 +1,28 @@
+# Local Postgres for development.
+#
+#   docker compose up -d
+#   DATABASE_URL="postgresql://topmiles:topmiles@localhost:5432/topmiles"
+#
+# Production uses a managed Postgres (Vercel Postgres, Neon, Supabase) — this
+# file is for local work only and its credentials are intentionally trivial.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: topmiles-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: topmiles
+      POSTGRES_PASSWORD: topmiles
+      POSTGRES_DB: topmiles
+    ports:
+      - "5432:5432"
+    volumes:
+      - topmiles-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U topmiles"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  topmiles-pgdata:
