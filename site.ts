@@ -186,3 +186,21 @@ export const REFERRAL_SOURCES = [
   "Truck stop / word of mouth",
   "Other",
 ] as const;
+
+/**
+ * Photos shown in the "On the road" strip on the homepage.
+ *
+ * Leave this array empty and the whole section disappears — no broken images,
+ * no empty boxes. To add a photo:
+ *   1. Upload the file into the `public/` folder in GitHub.
+ *   2. Add an entry here with the filename and a description of what it shows.
+ *
+ * `alt` is read aloud by screen readers and shown if the image fails to load,
+ * so describe the picture rather than repeating the company name.
+ *
+ * Example:
+ *   { src: "/truck-highway.jpg", alt: "Black Class 8 tractor on an open highway" },
+ */
+export const sitePhotos: ReadonlyArray<{ src: string; alt: string }> = [
+  // { src: "/truck-highway.jpg", alt: "Black Class 8 tractor on an open highway" },
+];
