@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import {
   jobDetails,
   jobHighlights,
   jobRequirements,
+  sitePhotos,
   siteConfig,
 } from "@/config/site";
 import { faqs } from "@/content/faq";
@@ -15,6 +17,7 @@ import {
   Section,
   SectionHeading,
   StatCard,
+  cx,
 } from "@/components/ui";
 import { FaqSchema, JobPostingSchema } from "@/components/StructuredData";
 
@@ -30,6 +33,7 @@ export default function HomePage() {
     <>
       <Hero />
       <TheJob />
+      <Photos />
       <Requirements />
       <HowItWorks />
       <Faq />
@@ -61,7 +65,7 @@ function Hero() {
             Now hiring · {siteConfig.locationLabel}
           </p>
 
-          <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 className="mt-5 text-balance text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
             OTR CDL-A Truck Driver Jobs
             <span className="block text-brand-400">Dry Van &amp; Reefer</span>
           </h1>
@@ -76,9 +80,9 @@ function Hero() {
             <ButtonLink href="/apply" size="lg" className="w-full sm:w-auto">
               Apply Now
             </ButtonLink>
-            <a
+            
               href={siteConfig.phoneHref}
-              className="inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-lg px-7 py-4 text-lg font-semibold text-white ring-1 ring-inset ring-white/25 transition-colors hover:bg-white/10 sm:w-auto"
+              className="inline-flex min-h-13 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-7 py-4 text-lg font-semibold text-white ring-1 ring-inset ring-white/25 transition-colors hover:bg-white/10 sm:w-auto"
             >
               <PhoneIcon className="text-brand-400" />
               Call {siteConfig.phoneDisplay}
@@ -126,6 +130,49 @@ function TheJob() {
           </Card>
         ))}
       </div>
+    </Section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+
+function Photos() {
+  // No photos configured yet — render nothing at all rather than empty boxes.
+  if (sitePhotos.length === 0) return null;
+
+  return (
+    <Section tone="muted">
+      <SectionHeading eyebrow="On the Road" title="The equipment you'll run" />
+      {/*
+        Columns follow the number of photos, so two images sit as a balanced
+        pair rather than leaving a hole in a three-wide row.
+      */}
+      <ul
+        className={cx(
+          "mt-10 grid gap-5",
+          sitePhotos.length === 1 && "mx-auto max-w-2xl",
+          sitePhotos.length === 2 && "sm:grid-cols-2",
+          sitePhotos.length >= 3 && "sm:grid-cols-2 lg:grid-cols-3",
+        )}
+      >
+        {sitePhotos.map((photo) => (
+          <li
+            key={photo.src}
+            className="relative aspect-[4/3] overflow-hidden rounded-xl bg-ink-200 ring-1 ring-ink-200"
+          >
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              fill
+              // Tells the browser how wide the image will actually be at each
+              // breakpoint, so it downloads a suitably sized file instead of
+              // the full-resolution original.
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              className="object-cover"
+            />
+          </li>
+        ))}
+      </ul>
     </Section>
   );
 }
@@ -254,13 +301,13 @@ function ClosingCta() {
             you through it.
           </p>
         </div>
-        <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+        <div className="flex w-full shrink-0 flex-col gap-3 sm:flex-row lg:w-auto">
           <ButtonLink href="/apply" size="lg" className="w-full sm:w-auto">
             Apply Now
           </ButtonLink>
-          <a
+          
             href={siteConfig.phoneHref}
-            className="inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-lg px-7 py-4 text-lg font-semibold text-white ring-1 ring-inset ring-white/25 hover:bg-white/10 sm:w-auto"
+            className="inline-flex min-h-13 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-7 py-4 text-lg font-semibold text-white ring-1 ring-inset ring-white/25 hover:bg-white/10 sm:w-auto"
           >
             <PhoneIcon className="text-brand-400" />
             {siteConfig.phoneDisplay}
