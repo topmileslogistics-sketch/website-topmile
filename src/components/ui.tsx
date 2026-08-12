@@ -83,7 +83,9 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
 
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
+  // whitespace-nowrap: a button label should never wrap mid-phrase when a flex
+  // parent squeezes it. Buttons size to their content, not the other way round.
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:

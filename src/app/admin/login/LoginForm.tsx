@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Alert, Button } from "@/components/ui";
 import { TextField } from "@/components/form/Fields";
 
 export function LoginForm({ next }: { next: string }) {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -27,9 +25,13 @@ export function LoginForm({ next }: { next: string }) {
       });
 
       if (response.ok) {
-        // Full navigation so middleware re-runs with the new cookie.
-        router.replace(next);
-        router.refresh();
+        // A full page load, not router.replace() + router.refresh().
+        //
+        // Those two race: refresh() can abort the pending replace and leave the
+        // user staring at the login form after a successful sign-in. A hard
+        // navigation also guarantees middleware re-runs with the new cookie and
+        // that no stale unauthenticated RSC payload is reused.
+        window.location.assign(next);
         return;
       }
 

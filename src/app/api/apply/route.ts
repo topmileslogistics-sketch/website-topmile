@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { applicationSchema, flattenIssues } from "@/lib/validation";
-import { rateLimit, pruneRateLimits } from "@/lib/rate-limit";
+import {
+  bumpRateLimit,
+  peekRateLimit,
+  pruneRateLimits,
+} from "@/lib/rate-limit";
 import { getClientIp, hashIp } from "@/lib/hash";
 
 export const runtime = "nodejs";
@@ -10,6 +14,23 @@ export const dynamic = "force-dynamic";
 
 /** Minimum time a human plausibly needs to complete the form. */
 const MIN_FILL_MS = 5_000;
+
+/**
+ * Two separate limits, on purpose.
+ *
+ * REQUEST_* caps how hard one connection can hammer the endpoint. It has to be
+ * generous, because a driver correcting validation errors legitimately submits
+ * several times — a tight limit here would lock out the exact person we want to
+ * hire.
+ *
+ * CREATE_* caps how many applications one connection can actually file, and is
+ * only consumed when a record is written. That is the number that matters for
+ * flooding the recruiting inbox.
+ */
+const REQUEST_LIMIT = 30;
+const REQUEST_WINDOW_SECONDS = 60 * 60;
+const CREATE_LIMIT = 3;
+const CREATE_WINDOW_SECONDS = 60 * 60;
 
 const NO_STORE = { "Cache-Control": "no-store" } as const;
 
@@ -44,18 +65,22 @@ export async function POST(request: Request) {
     }
   }
 
-  // --- Rate limit: 5 submissions per IP per hour ---------------------------
-  const limit = await rateLimit(`apply:${ipHash}`, 5, 60 * 60);
-  if (!limit.allowed) {
+  // --- Request-rate limit (consumed on every attempt) ----------------------
+  const requestLimit = await peekRateLimit(
+    `apply:req:${ipHash}`,
+    REQUEST_LIMIT,
+  );
+  if (!requestLimit.allowed) {
     return json(
       {
         error:
-          "Too many applications from this connection. Please try again later, or call us.",
+          "Too many attempts from this connection. Please wait a few minutes, or call us and we'll take your application by phone.",
       },
       429,
-      { "Retry-After": String(limit.retryAfterSeconds) },
+      { "Retry-After": String(requestLimit.retryAfterSeconds) },
     );
   }
+  await bumpRateLimit(`apply:req:${ipHash}`, REQUEST_WINDOW_SECONDS);
 
   // --- Parse body ----------------------------------------------------------
   let raw: unknown;
@@ -121,6 +146,22 @@ export async function POST(request: Request) {
   } catch {
     // If the lookup fails, fall through — the unique constraint below still
     // prevents a duplicate record from being written.
+  }
+
+  // --- Creation limit (only consumed when a record is actually written) ----
+  const createLimit = await peekRateLimit(
+    `apply:create:${ipHash}`,
+    CREATE_LIMIT,
+  );
+  if (!createLimit.allowed) {
+    return json(
+      {
+        error:
+          "We've already received several applications from this connection. Give us a call and we'll pick it up from there.",
+      },
+      429,
+      { "Retry-After": String(createLimit.retryAfterSeconds) },
+    );
   }
 
   try {
@@ -191,6 +232,9 @@ export async function POST(request: Request) {
       },
       select: { id: true },
     });
+
+    // The application was written, so now consume the creation quota.
+    await bumpRateLimit(`apply:create:${ipHash}`, CREATE_WINDOW_SECONDS);
 
     // Opportunistic cleanup; failures are swallowed inside the helper.
     void pruneRateLimits();

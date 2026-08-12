@@ -4,8 +4,8 @@
  *
  *   npm run hash-password -- "your-strong-password"
  *
- * Copy the output into ADMIN_PASSWORD_HASH. The plaintext password is never
- * written to disk, and should never be committed or pasted into a file.
+ * The plaintext password is never written to disk, and should never be
+ * committed or pasted into a file.
  */
 import bcrypt from "bcryptjs";
 
@@ -25,5 +25,18 @@ if (password.length < 12) {
 
 const hash = await bcrypt.hash(password, 12);
 
-console.log("\nAdd this to your environment variables:\n");
-console.log(`ADMIN_PASSWORD_HASH='${hash}'\n`);
+// Next.js runs dotenv-expand over .env files, which treats `$2a`, `$12` and
+// the salt segment of a bcrypt hash as variable references and silently
+// replaces them with empty strings. Escaping each `$` prevents that. Values
+// set in the Vercel dashboard are NOT expanded, so they use the raw hash.
+const escaped = hash.replace(/\$/g, "\\$");
+
+console.log(`
+For a .env / .env.local file (note the escaped $ — required, see README):
+
+ADMIN_PASSWORD_HASH=${escaped}
+
+For the Vercel dashboard (Settings → Environment Variables), paste the raw hash:
+
+${hash}
+`);

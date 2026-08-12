@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/config/site";
 
@@ -12,6 +14,10 @@ export const alt =
   "Top Miles Logistics — OTR CDL-A truck driver jobs, Dry Van & Reefer freight";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+const emblemDataUri = `data:image/png;base64,${readFileSync(
+  join(process.cwd(), "public", "logo-emblem.png"),
+).toString("base64")}`;
 
 export default async function Image() {
   return new ImageResponse(
@@ -31,22 +37,17 @@ export default async function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: 16,
-              background: "#f59e0b",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 34,
-              fontWeight: 800,
-              color: "#0a0f18",
-            }}
-          >
-            TM
-          </div>
+          {/*
+            next/og cannot load a relative URL, so the emblem is read off disk
+            at build time and inlined. Same file the header uses.
+          */}
+          <img
+            src={emblemDataUri}
+            alt=""
+            width={160}
+            height={82}
+            style={{ objectFit: "contain" }}
+          />
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>
               Top Miles Logistics

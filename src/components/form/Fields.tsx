@@ -343,19 +343,28 @@ export function YesNoField({
           <label
             key={option.label}
             className={cx(
-              "flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold ring-1 ring-inset transition-colors sm:flex-none sm:min-w-24",
+              "relative flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold ring-1 ring-inset transition-colors sm:flex-none sm:min-w-24",
+              "focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-600",
               value === option.val
                 ? "bg-brand-600 text-white ring-brand-600"
                 : "bg-white text-ink-700 ring-ink-300 hover:bg-ink-50",
             )}
           >
+            {/*
+              The input is transparent rather than `sr-only`: it covers the
+              whole control, so the entire button is a genuine hit target for
+              pointers, assistive tech and automation alike — not just the
+              label wrapping a clipped 1px input.
+            */}
             <input
               type="radio"
               name={name}
-              className="sr-only"
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
               checked={value === option.val}
               onChange={() => onChange(option.val)}
             />
+            {/* Plain text inside the <label> — this is what gives the radio
+                its accessible name. */}
             {option.label}
           </label>
         ))}

@@ -7,32 +7,45 @@ export type RateLimitResult = {
   retryAfterSeconds: number;
 };
 
+const ALLOW: RateLimitResult = {
+  allowed: true,
+  remaining: Number.MAX_SAFE_INTEGER,
+  retryAfterSeconds: 0,
+};
+
 /**
- * Fixed-window rate limiter backed by Postgres.
+ * Fixed-window rate limiting, backed by Postgres.
  *
  * An in-memory counter is useless on Vercel: each serverless instance would
  * keep its own count, so an attacker gets `limit × instances` requests. Storing
  * the window in the database makes the limit hold across every instance.
+ *
+ * Two operations are exposed rather than one, because the application form
+ * needs them separated:
+ *
+ *   - `rateLimit()` checks and consumes in one step — right for endpoints where
+ *     every request is equally expensive (sign-in).
+ *   - `peekRateLimit()` / `bumpRateLimit()` let a caller consume the quota only
+ *     when something was actually created. The application form needs this:
+ *     counting failed validation attempts against a driver would lock out
+ *     someone who simply mistyped their ZIP code a few times.
  */
-export async function rateLimit(
+
+async function readWindow(key: string) {
+  return prisma.rateLimit.findUnique({ where: { key } });
+}
+
+/** Check the quota without consuming any of it. */
+export async function peekRateLimit(
   key: string,
   limit: number,
-  windowSeconds: number,
 ): Promise<RateLimitResult> {
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + windowSeconds * 1000);
-
   try {
-    const existing = await prisma.rateLimit.findUnique({ where: { key } });
+    const now = new Date();
+    const existing = await readWindow(key);
 
-    // No window yet, or the previous one has expired → start fresh.
     if (!existing || existing.expiresAt <= now) {
-      await prisma.rateLimit.upsert({
-        where: { key },
-        create: { key, count: 1, windowStart: now, expiresAt },
-        update: { count: 1, windowStart: now, expiresAt },
-      });
-      return { allowed: true, remaining: limit - 1, retryAfterSeconds: 0 };
+      return { allowed: true, remaining: limit, retryAfterSeconds: 0 };
     }
 
     if (existing.count >= limit) {
@@ -46,22 +59,59 @@ export async function rateLimit(
       };
     }
 
-    const updated = await prisma.rateLimit.update({
-      where: { key },
-      data: { count: { increment: 1 } },
-    });
-
     return {
       allowed: true,
-      remaining: Math.max(0, limit - updated.count),
+      remaining: limit - existing.count,
       retryAfterSeconds: 0,
     };
   } catch {
-    // A rate-limiter outage must not take the application form down with it.
-    // Failing open is the right trade-off here: the other spam defences
-    // (honeypot, timing check, duplicate constraint) still apply.
-    return { allowed: true, remaining: limit, retryAfterSeconds: 0 };
+    return ALLOW;
   }
+}
+
+/** Consume one unit of the quota, starting a new window if needed. */
+export async function bumpRateLimit(
+  key: string,
+  windowSeconds: number,
+): Promise<void> {
+  try {
+    const now = new Date();
+    const existing = await readWindow(key);
+
+    if (!existing || existing.expiresAt <= now) {
+      const expiresAt = new Date(now.getTime() + windowSeconds * 1000);
+      await prisma.rateLimit.upsert({
+        where: { key },
+        create: { key, count: 1, windowStart: now, expiresAt },
+        update: { count: 1, windowStart: now, expiresAt },
+      });
+      return;
+    }
+
+    await prisma.rateLimit.update({
+      where: { key },
+      data: { count: { increment: 1 } },
+    });
+  } catch {
+    // A rate-limiter outage must not take the application form down with it.
+    // Failing open is the right trade-off: the other defences (honeypot,
+    // timing check, duplicate constraints) still apply.
+  }
+}
+
+/** Check and consume in one step. */
+export async function rateLimit(
+  key: string,
+  limit: number,
+  windowSeconds: number,
+): Promise<RateLimitResult> {
+  const result = await peekRateLimit(key, limit);
+  if (!result.allowed) return result;
+  await bumpRateLimit(key, windowSeconds);
+  return {
+    ...result,
+    remaining: Math.max(0, result.remaining - 1),
+  };
 }
 
 /** Housekeeping: drop expired windows. Safe to call opportunistically. */

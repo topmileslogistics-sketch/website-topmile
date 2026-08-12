@@ -31,7 +31,7 @@ export const siteConfig = {
   phoneHref: "tel:+19297064042",
   phoneDisplay: "(929) 706-4042",
   /** PLACEHOLDER — not provided. */
-  email: "topmileslogistics@gmail.com",
+  email: "[COMPANY EMAIL]",
   /** PLACEHOLDER — not provided. */
   officeAddress: "[OFFICE ADDRESS]",
   /** PLACEHOLDER — not provided. */
@@ -39,6 +39,7 @@ export const siteConfig = {
   /** PLACEHOLDER — not provided. */
   dotNumber: "[DOT NUMBER]",
   /** PLACEHOLDER — not provided. */
+  recruitingHours: "[RECRUITING HOURS]",
 
   // ---- The role (all confirmed) ------------------------------------------
   position: "OTR CDL-A Truck Driver",
@@ -185,18 +186,22 @@ export const REFERRAL_SOURCES = [
   "Truck stop / word of mouth",
   "Other",
 ] as const;
+
 /**
  * Photos shown in the "On the road" strip on the homepage.
  *
- * An empty array hides the whole section — no broken images, no empty boxes.
- * To add one: upload the file into `public/`, then add a line here.
+ * Leave this array empty and the whole section disappears — no broken images,
+ * no empty boxes. To add a photo:
+ *   1. Upload the file into the `public/` folder in GitHub.
+ *   2. Add an entry here with the filename and a description of what it shows.
  *
  * `alt` is read aloud by screen readers and shown if the image fails to load,
  * so describe the picture rather than repeating the company name.
+ *
+ * Example:
+ *   { src: "/truck-highway.jpg", alt: "Black Class 8 tractor on an open highway" },
  */
 export const sitePhotos: ReadonlyArray<{ src: string; alt: string }> = [
   { src: "/truck-road.jpg", alt: "Black Class 8 tractor on a two-lane road" },
   { src: "/truck-fog.jpg", alt: "Semi truck running through heavy fog on the highway" },
 ];
-{ src: "/truck-road.jpg", alt: "Black Class 8 tractor on a two-lane road" },
-  { src: "/truck-fog.jpg", alt: "Semi truck running through heavy fog on the highway" },

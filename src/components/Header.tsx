@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
@@ -38,10 +39,22 @@ export function Header() {
         <div className="flex h-16 items-center justify-between gap-4 sm:h-20">
           <Link
             href="/"
-            className="flex items-center gap-2.5"
+            className="flex min-h-11 items-center gap-2.5"
             aria-label={`${siteConfig.name} — home`}
           >
-            <Logo />
+            {/*
+              The emblem only — the full artwork's wordmark reads "TOP MILE"
+              (singular), which contradicts the company name used everywhere
+              else on the site. The text beside it supplies the correct name.
+            */}
+            <Image
+              src="/logo-emblem.png"
+              alt=""
+              width={280}
+              height={144}
+              priority
+              className="h-9 w-auto sm:h-10"
+            />
             <span className="text-base font-bold leading-tight text-ink-900 sm:text-lg">
               Top Miles
               <span className="block text-[0.7em] font-semibold uppercase tracking-widest text-brand-700">
@@ -73,7 +86,13 @@ export function Header() {
               <PhoneIcon className="text-brand-600" />
               <span>{siteConfig.phoneDisplay}</span>
             </a>
-            <ButtonLink href="/apply" size="sm" className="sm:px-5 sm:py-2.5">
+            {/* Primary CTA: kept at a 44px minimum height even on the
+                smallest phone, per the WCAG 2.5.5 target-size guidance. */}
+            <ButtonLink
+              href="/apply"
+              size="sm"
+              className="min-h-11 px-4 sm:px-5"
+            >
               Apply Now
             </ButtonLink>
 
@@ -139,29 +158,5 @@ export function Header() {
         </Container>
       </div>
     </header>
-  );
-}
-
-function Logo() {
-  return (
-    <svg
-      viewBox="0 0 40 40"
-      aria-hidden="true"
-      className="h-9 w-9 shrink-0 sm:h-10 sm:w-10"
-    >
-      <rect width="40" height="40" rx="9" fill="#121a28" />
-      <path
-        d="M6 25.5h4.2M29.8 25.5H34"
-        stroke="#f59e0b"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M8 13.5h13.2v12H8zM21.2 17.4h5l3.6 4v4.1h-8.6z"
-        fill="#fff"
-      />
-      <circle cx="13.4" cy="27" r="2.6" fill="#f59e0b" />
-      <circle cx="26.2" cy="27" r="2.6" fill="#f59e0b" />
-    </svg>
   );
 }

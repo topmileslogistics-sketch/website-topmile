@@ -1,10 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function LogoutButton() {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
 
   return (
@@ -16,8 +14,10 @@ export function LogoutButton() {
         try {
           await fetch("/api/auth/logout", { method: "POST" });
         } finally {
-          router.replace("/admin/login");
-          router.refresh();
+          // Hard navigation on purpose: it drops every cached RSC payload
+          // containing applicant data, which a client-side route change would
+          // leave sitting in the router cache after sign-out.
+          window.location.assign("/admin/login");
         }
       }}
       className="rounded-lg px-3 py-2 font-semibold text-ink-700 ring-1 ring-inset ring-ink-300 hover:bg-ink-50 disabled:opacity-60"

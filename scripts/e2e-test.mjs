@@ -470,8 +470,17 @@ async function run() {
     (og.headers.get("content-type") || "").includes("image/png"),
   );
 
-  const icon = await fetch(`${BASE}/icon.svg`);
-  check("favicon is served", icon.status === 200);
+  const icon = await fetch(`${BASE}/icon.png`);
+  check("tab icon is served", icon.status === 200, `got ${icon.status}`);
+
+  const favicon = await fetch(`${BASE}/favicon.ico`);
+  check("favicon.ico is served", favicon.status === 200, `got ${favicon.status}`);
+
+  const appleIcon = await fetch(`${BASE}/apple-icon.png`);
+  check("Apple touch icon is served", appleIcon.status === 200, `got ${appleIcon.status}`);
+
+  const logo = await fetch(`${BASE}/logo-emblem.png`);
+  check("header logo is served", logo.status === 200, `got ${logo.status}`);
 
   const missing = await fetch(`${BASE}/this-page-does-not-exist`);
   check("unknown URLs return 404", missing.status === 404);

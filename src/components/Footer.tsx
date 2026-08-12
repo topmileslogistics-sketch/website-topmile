@@ -18,7 +18,7 @@ export function Footer() {
             </p>
             <a
               href={siteConfig.phoneHref}
-              className="mt-5 inline-flex items-center gap-2 text-base font-semibold text-white hover:text-brand-300"
+              className="mt-4 inline-flex min-h-11 items-center gap-2 text-base font-semibold text-white hover:text-brand-300"
             >
               <PhoneIcon className="text-brand-400" />
               {siteConfig.phoneDisplay}
@@ -34,30 +34,30 @@ export function Footer() {
             </h2>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
-                <Link href="/" className="text-ink-300 hover:text-white">
+                <Link href="/" className="inline-block py-1 text-ink-300 hover:text-white">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/#the-job" className="text-ink-300 hover:text-white">
+                <Link href="/#the-job" className="inline-block py-1 text-ink-300 hover:text-white">
                   The Job
                 </Link>
               </li>
               <li>
                 <Link
                   href="/#requirements"
-                  className="text-ink-300 hover:text-white"
+                  className="inline-block py-1 text-ink-300 hover:text-white"
                 >
                   Requirements
                 </Link>
               </li>
               <li>
-                <Link href="/apply" className="text-ink-300 hover:text-white">
+                <Link href="/apply" className="inline-block py-1 text-ink-300 hover:text-white">
                   Driver Application
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-ink-300 hover:text-white">
+                <Link href="/privacy" className="inline-block py-1 text-ink-300 hover:text-white">
                   Privacy Policy
                 </Link>
               </li>
@@ -73,7 +73,7 @@ export function Footer() {
                 <span className="block text-ink-400">Phone</span>
                 <a
                   href={siteConfig.phoneHref}
-                  className="hover:text-white"
+                  className="inline-block py-1 hover:text-white"
                 >
                   {siteConfig.phoneDisplay}
                 </a>

@@ -21,7 +21,11 @@ const envSchema = z.object({
     .string()
     .regex(
       /^\$2[aby]\$\d{2}\$.{53}$/,
-      "ADMIN_PASSWORD_HASH must be a bcrypt hash — run: npm run hash-password -- \"your-password\"",
+      // The most common cause by far: an unescaped bcrypt hash in a .env file.
+      // Next.js expands variables there, so "$2a$12$abc..." becomes "" and the
+      // value silently arrives truncated. Name that explicitly — a bare
+      // "invalid hash" message sends people hunting in the wrong place.
+      'ADMIN_PASSWORD_HASH is not a valid bcrypt hash. Generate one with: npm run hash-password -- "your-password". If you are setting it in a .env file, every "$" must be escaped as "\\$" — Next.js expands variables in .env files and will otherwise strip the hash.',
     ),
   SESSION_SECRET: z
     .string()
