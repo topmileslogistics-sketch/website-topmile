@@ -20,6 +20,7 @@ import {
   cx,
 } from "@/components/ui";
 import { FaqSchema, JobPostingSchema } from "@/components/StructuredData";
+import { Photos } from "@/components/Photos"; 
 
 export const metadata: Metadata = {
   title: "OTR CDL-A Truck Driver Jobs in Ohio | Top Miles Logistics",
@@ -33,6 +34,7 @@ export default function HomePage() {
     <>
       <Hero />
       <TheJob />
+      <Photos />
       <Photos />
       <Requirements />
       <HowItWorks />
