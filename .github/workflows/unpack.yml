@@ -22,7 +22,7 @@ jobs:
           if [ ${#zips[@]} -eq 0 ]; then
             echo "No .zip found at the repository root — nothing to unpack."
           else
-            unzip -o "${zips[0]}"
+          unzip -o "${zips[0]}" -x ".github/*"
             rm -f "${zips[0]}"
           fi
 
