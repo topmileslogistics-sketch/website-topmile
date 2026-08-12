@@ -198,3 +198,5 @@ export const sitePhotos: ReadonlyArray<{ src: string; alt: string }> = [
   { src: "/truck-road.jpg", alt: "Black Class 8 tractor on a two-lane road" },
   { src: "/truck-fog.jpg", alt: "Semi truck running through heavy fog on the highway" },
 ];
+{ src: "/truck-road.jpg", alt: "Black Class 8 tractor on a two-lane road" },
+  { src: "/truck-fog.jpg", alt: "Semi truck running through heavy fog on the highway" },
