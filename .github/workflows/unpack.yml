@@ -1,32 +1,35 @@
-name: Remove stray root files
+name: Unpack project zip
 
 on:
+  push:
+    paths:
+      - "*.zip"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  cleanup:
+  unpack:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Delete flattened duplicates from the repository root
+      - name: Unzip into the repository root
         run: |
-          rm -f \
-            AdminShell.tsx ApplicationForm.tsx Fields.tsx Footer.tsx Header.tsx \
-            LoginForm.tsx LogoutButton.tsx Placeholder.tsx StatusBadge.tsx \
-            StatusForm.tsx StructuredData.tsx actions.ts apple-icon.svg auth.ts \
-            e2e-test.mjs env.ts faq.ts globals.css hash-password.mjs hash.ts \
-            icon.svg layout.tsx middleware.ts not-found.tsx opengraph-image.tsx \
-            page.tsx prisma.ts rate-limit.ts robots.ts route.ts schema.prisma \
-            session.ts site.ts sitemap.ts ui.tsx validation.ts
+          shopt -s nullglob
+          zips=(*.zip)
+          if [ ${#zips[@]} -eq 0 ]; then
+            echo "No .zip found at the repository root."
+            exit 1
+          fi
+          unzip -o "${zips[0]}"
+          rm -f "${zips[0]}"
 
-      - name: Commit the cleanup
+      - name: Commit the unpacked files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Remove flattened duplicate files from the repository root" || echo "Nothing to remove"
+          git commit -m "Fix homepage and add photo gallery" || echo "Nothing to commit"
           git push
